@@ -2,6 +2,7 @@ import { VehicleModel } from '../../src/models/vehicle.model';
 
 describe('Vehicle Model Validation', () => {
   const validVehicleData = {
+    name: 'Toyota Camry 2024',
     make: 'Toyota',
     model: 'Camry',
     category: 'Sedan',
@@ -14,10 +15,12 @@ describe('Vehicle Model Validation', () => {
 
     expect(vehicle.make).toBe('Toyota');
     expect(vehicle.price).toBe(25000.5);
+    // category should be trimmed and lowercased
+    expect(vehicle.category).toBe('sedan');
   });
 
   describe('Required Fields', () => {
-    const requiredFields = ['make', 'model', 'category', 'price', 'quantity'];
+    const requiredFields = ['name', 'make', 'model', 'category', 'price', 'quantity'];
 
     requiredFields.forEach((field) => {
       it(`should throw validation error when ${field} is missing`, () => {
@@ -26,6 +29,30 @@ describe('Vehicle Model Validation', () => {
 
         expect(() => VehicleModel.build(invalidData)).toThrow();
       });
+    });
+  });
+
+  describe('Text Validations', () => {
+    it('should throw validation error if name is too short', () => {
+      const data = { ...validVehicleData, name: 'A' };
+      expect(() => VehicleModel.build(data)).toThrow();
+    });
+
+    it('should transform category to lowercase and trim whitespace', () => {
+      const data = { ...validVehicleData, category: '  SUV  ' };
+      const vehicle = VehicleModel.build(data);
+      expect(vehicle.category).toBe('suv');
+    });
+
+    it('should allow optional description under 500 chars', () => {
+      const data = { ...validVehicleData, description: 'A great car' };
+      const vehicle = VehicleModel.build(data);
+      expect(vehicle.description).toBe('A great car');
+    });
+
+    it('should throw if description exceeds 500 characters', () => {
+      const data = { ...validVehicleData, description: 'a'.repeat(501) };
+      expect(() => VehicleModel.build(data)).toThrow();
     });
   });
 
