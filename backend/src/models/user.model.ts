@@ -1,15 +1,43 @@
+import { z } from 'zod';
+import bcrypt from 'bcrypt';
+
+// Define the validation schema using Zod
+const UserSchema = z.object({
+  username: z.string().min(3, 'Username must be at least 3 characters long'),
+  // Using explicit regex for email as requested
+  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(20, 'Password must be at most 20 characters'),
+  role: z.enum(['customer', 'admin']).default('customer'),
+  createdAt: z.date().default(() => new Date()),
+  updatedAt: z.date().default(() => new Date()),
+});
+
+export type UserType = z.infer<typeof UserSchema>;
+
 export class UserModel {
-  // Required fields: username, email, password, role
-
-  static build(data: any): any {
-    throw new Error('UserModel.build not implemented');
+  /**
+   * Validates and builds a user object with defaults
+   */
+  static build(data: any): UserType {
+    // Zod's .parse() will throw an error if validation fails
+    return UserSchema.parse(data);
   }
 
+  /**
+   * Hashes a plain text password using bcrypt
+   */
   static async hashPassword(password: string): Promise<string> {
-    throw new Error('UserModel.hashPassword not implemented');
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
   }
 
+  /**
+   * Compares a plain text password with a hashed password
+   */
   static async comparePassword(plain: string, hashed: string): Promise<boolean> {
-    throw new Error('UserModel.comparePassword not implemented');
+    return bcrypt.compare(plain, hashed);
   }
 }
