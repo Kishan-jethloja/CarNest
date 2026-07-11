@@ -73,5 +73,21 @@ describe('Authentication Routes', () => {
         expect(response.body.message).toMatch(/invalid email/i);
       });
     });
+
+    describe('Duplicate Registration Errors', () => {
+      it('should return 409 status if email already exists', async () => {
+        // Since the 'validRegistrationData' was successfully inserted in the first test,
+        // attempting to register another user with the same email should fail.
+        const duplicateEmailData = {
+          ...validRegistrationData,
+          username: 'differentusername', // Unique username
+        };
+        const response = await request(app).post('/api/auth/register').send(duplicateEmailData);
+
+        expect(response.status).toBe(409);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/already exists/i);
+      });
+    });
   });
 });
