@@ -3,11 +3,15 @@ import bcrypt from 'bcrypt';
 
 // Define the validation schema using Zod
 const UserSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters long'),
+  username: z
+    .string({ required_error: 'Username is required' })
+    .min(3, 'Username must be at least 3 characters long'),
   // Using explicit regex for email as requested
-  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
+  email: z
+    .string({ required_error: 'Email is required' })
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
   password: z
-    .string()
+    .string({ required_error: 'Password is required' })
     .min(6, 'Password must be at least 6 characters')
     .max(20, 'Password must be at most 20 characters'),
   role: z.enum(['customer', 'admin']).default('customer'),

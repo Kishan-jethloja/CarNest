@@ -30,5 +30,37 @@ describe('Authentication Routes', () => {
       // Crucially, we expect the password to NOT be returned
       expect(response.body.data.user).not.toHaveProperty('password');
     });
+
+    describe('Validation Errors for Missing Fields', () => {
+      it('should return 400 status if username is missing', async () => {
+        const { username, ...missingUsername } = validRegistrationData;
+        const response = await request(app).post('/api/auth/register').send(missingUsername);
+
+        console.log('DEBUG BODY:', response.body);
+        console.log('DEBUG TEXT:', response.text);
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/username/i);
+      });
+
+      it('should return 400 status if email is missing', async () => {
+        const { email, ...missingEmail } = validRegistrationData;
+        const response = await request(app).post('/api/auth/register').send(missingEmail);
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/email/i);
+      });
+
+      it('should return 400 status if password is missing', async () => {
+        const { password, ...missingPassword } = validRegistrationData;
+        const response = await request(app).post('/api/auth/register').send(missingPassword);
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/password/i);
+      });
+    });
   });
 });
