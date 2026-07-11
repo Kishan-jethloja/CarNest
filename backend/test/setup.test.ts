@@ -1,9 +1,16 @@
-describe('Test Setup Verification', () => {
-  it('should run this dummy test successfully', () => {
-    expect(true).toBe(true);
+import { connectDB, closeDB, clearDB } from '../src/config/db';
+
+describe('Global Test Setup & Database Connection', () => {
+  beforeAll(async () => {
+    await connectDB();
   });
 
-  it('should support mathematical operations', () => {
-    expect(1 + 1).toBe(2);
+  afterAll(async () => {
+    await closeDB();
+  });
+
+  it('should successfully connect to the test database and clear tables', async () => {
+    // If this throws, the connection is failing
+    await expect(clearDB()).resolves.not.toThrow();
   });
 });
