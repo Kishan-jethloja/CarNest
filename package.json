@@ -1,0 +1,29 @@
+{
+  "name": "carnest",
+  "version": "1.0.0",
+  "description": "A full-stack Car Dealership Inventory System built with Node.js, Express, TypeScript, Prisma, React, and Vite.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kishan-jethloja/CarNest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kishan-jethloja/CarNest/issues"
+  },
+  "homepage": "https://github.com/Kishan-jethloja/CarNest#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
+    "@typescript-eslint/parser": "^8.63.0",
+    "eslint": "^10.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.9.5"
+  }
+}
