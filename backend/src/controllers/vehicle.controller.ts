@@ -73,3 +73,55 @@ export const searchVehicles = async (req: Request, res: Response): Promise<void>
     });
   }
 };
+
+export const updateVehicle = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ success: false, message: 'No fields provided for update' });
+      return;
+    }
+
+    // First check if the vehicle exists
+    const checkResult = await pool.query(`SELECT id FROM vehicles WHERE id = $1`, [id]);
+    if (checkResult.rows.length === 0) {
+      res.status(404).json({ success: false, message: 'Vehicle not found' });
+      return;
+    }
+
+    let setClauses: string[] = [];
+    let queryParams: any[] = [];
+    let paramIndex = 1;
+
+    for (const [key, value] of Object.entries(updates)) {
+      setClauses.push(`${key} = $${paramIndex}`);
+      queryParams.push(value);
+      paramIndex++;
+    }
+
+    queryParams.push(id);
+    const updateQuery = `
+      UPDATE vehicles 
+      SET ${setClauses.join(', ')} 
+      WHERE id = $${paramIndex} 
+      RETURNING *;
+    `;
+
+    const result = await pool.query(updateQuery, queryParams);
+
+    res.status(200).json({
+      success: true,
+      message: 'Vehicle updated successfully',
+      data: {
+        vehicle: result.rows[0],
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update vehicle',
+    });
+  }
+};

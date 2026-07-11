@@ -18,3 +18,19 @@ export const validateVehicle = (req: Request, res: Response, next: NextFunction)
     res.status(400).json({ success: false, message: 'Invalid vehicle data' });
   }
 };
+
+export const validateVehicleUpdate = (req: Request, res: Response, next: NextFunction): void => {
+  try {
+    VehicleModel.buildPartial(req.body);
+    next();
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        success: false,
+        message: formatZodError(error),
+      });
+      return;
+    }
+    res.status(400).json({ success: false, message: 'Invalid vehicle update data' });
+  }
+};

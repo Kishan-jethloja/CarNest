@@ -30,6 +30,9 @@ const VehicleSchema = z.object({
 });
 
 export type VehicleType = z.infer<typeof VehicleSchema>;
+export type UpdateVehicleType = z.infer<typeof UpdateVehicleSchema>;
+
+const UpdateVehicleSchema = VehicleSchema.partial();
 
 export class VehicleModel {
   /**
@@ -45,9 +48,16 @@ export class VehicleModel {
   ];
 
   /**
-   * Validates and builds a vehicle object
+   * Validates and builds a complete vehicle object
    */
   static build(data: any): VehicleType {
     return VehicleSchema.parse(data);
+  }
+
+  /**
+   * Validates partial vehicle updates
+   */
+  static buildPartial(data: any): UpdateVehicleType {
+    return UpdateVehicleSchema.parse(data);
   }
 }
