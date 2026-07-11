@@ -19,11 +19,27 @@ export type UserType = z.infer<typeof UserSchema>;
 
 export class UserModel {
   /**
+   * Database indexes for the users table (Raw SQL)
+   */
+  static readonly INDEXES = [
+    'CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);',
+    'CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON users(username);',
+  ];
+
+  /**
    * Validates and builds a user object with defaults
    */
   static build(data: any): UserType {
     // Zod's .parse() will throw an error if validation fails
     return UserSchema.parse(data);
+  }
+
+  /**
+   * Transforms the user object for API responses by removing sensitive data
+   */
+  static toJSON(user: UserType): Omit<UserType, 'password'> {
+    const { password, ...safeUser } = user;
+    return safeUser;
   }
 
   /**

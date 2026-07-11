@@ -38,6 +38,15 @@ describe('User Model', () => {
 
       expect(() => UserModel.build(missingPassword)).toThrow();
     });
+
+    it('should automatically omit the password when transformed to JSON', () => {
+      const user = UserModel.build(validUserData);
+      const safeUser = UserModel.toJSON(user);
+
+      expect(safeUser).not.toHaveProperty('password');
+      expect(safeUser).toHaveProperty('username');
+      expect(safeUser).toHaveProperty('email');
+    });
   });
 
   describe('Password Management', () => {
