@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { pool } from '../config/db';
+import { buildVehicleSearchQuery } from '../utils/queryBuilder';
 
 export const createVehicle = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -48,6 +49,27 @@ export const getVehicles = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to retrieve vehicles',
+    });
+  }
+};
+
+export const searchVehicles = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { fetchQuery, queryParams } = buildVehicleSearchQuery(req.query);
+
+    const result = await pool.query(fetchQuery, queryParams);
+
+    res.status(200).json({
+      success: true,
+      message: 'Vehicles retrieved successfully',
+      data: {
+        vehicles: result.rows,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to search vehicles',
     });
   }
 };
