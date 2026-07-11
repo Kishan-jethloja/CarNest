@@ -72,6 +72,27 @@ describe('Authentication Routes', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toMatch(/invalid email/i);
       });
+
+      it('should return 400 status if password is less than 6 characters', async () => {
+        const shortPasswordData = { ...validRegistrationData, password: 'short' };
+        const response = await request(app).post('/api/auth/register').send(shortPasswordData);
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/at least 6 characters/i);
+      });
+
+      it('should return 400 status if password is more than 20 characters', async () => {
+        const longPasswordData = {
+          ...validRegistrationData,
+          password: 'thispasswordiswaytoolongtobeaccepted123!',
+        };
+        const response = await request(app).post('/api/auth/register').send(longPasswordData);
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/at most 20 characters/i);
+      });
     });
 
     describe('Duplicate Registration Errors', () => {
