@@ -26,3 +26,31 @@ export const authenticateToken = (
     res.status(401).json({ success: false, message: 'Invalid or expired token' });
   }
 };
+
+export const authenticateCustomer = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
+  authenticateToken(req, res, () => {
+    if (req.user && (req.user.role === 'customer' || req.user.role === 'admin')) {
+      next();
+    } else {
+      res.status(403).json({ success: false, message: 'Forbidden: Insufficient privileges' });
+    }
+  });
+};
+
+export const authenticateAdmin = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
+  authenticateToken(req, res, () => {
+    if (req.user && req.user.role === 'admin') {
+      next();
+    } else {
+      res.status(403).json({ success: false, message: 'Forbidden: Admin privileges required' });
+    }
+  });
+};

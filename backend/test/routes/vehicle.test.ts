@@ -1,7 +1,6 @@
 import request from 'supertest';
 import app from '../../src/app';
 import { generateToken } from '../../src/utils/tokengenerator';
-import { v4 as uuidv4 } from 'uuid';
 
 describe('Vehicle Routes', () => {
   describe('POST /api/vehicles', () => {
@@ -15,8 +14,8 @@ describe('Vehicle Routes', () => {
       description: 'A reliable compact car.',
     };
 
-    // Generate a mock valid token for an admin user
-    const validToken = generateToken({ id: uuidv4(), role: 'admin' });
+    // Generate a mock valid token for a customer user
+    const validToken = generateToken({ id: 1, role: 'customer' });
 
     describe('Authentication', () => {
       it('should return 401 status if token is missing', async () => {
