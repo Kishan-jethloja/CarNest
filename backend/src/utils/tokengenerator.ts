@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 
 const getSecret = (): string => process.env.JWT_SECRET || 'fallback_secret';
-const getExpiresIn = (): string => process.env.JWT_EXPIRES_IN || '7d';
+const getExpiresIn = (): any => process.env.JWT_EXPIRES_IN || '7d';
 
 /**
  * Generates a JSON Web Token (JWT) for a user

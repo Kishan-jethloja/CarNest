@@ -300,4 +300,68 @@ describe('Vehicle Routes', () => {
       });
     });
   });
+
+  describe('DELETE /api/vehicles/:id', () => {
+    let vehicleIdToDelete: number;
+    const adminToken = generateToken({ id: 2, role: 'admin' });
+
+    beforeAll(async () => {
+      // Insert a vehicle specifically for delete testing
+      const v = {
+        name: 'Delete Test Car',
+        make: 'DeleteMake',
+        model: 'DeleteModel',
+        category: 'sedan',
+        price: 15000,
+        quantity: 1,
+      };
+      const response = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${validToken}`)
+        .send(v);
+      vehicleIdToDelete = response.body.data.vehicle.id;
+    });
+
+    describe('Authentication & Authorization', () => {
+      it('should return 401 status if token is missing', async () => {
+        const response = await request(app).delete(`/api/vehicles/${vehicleIdToDelete}`);
+        expect(response.status).toBe(401);
+      });
+
+      it('should return 403 status for non-admin users', async () => {
+        const response = await request(app)
+          .delete(`/api/vehicles/${vehicleIdToDelete}`)
+          .set('Authorization', `Bearer ${validToken}`); // validToken is 'customer'
+        expect(response.status).toBe(403);
+      });
+    });
+
+    describe('Deletion', () => {
+      it('should return 404 for a non-existent vehicle', async () => {
+        const response = await request(app)
+          .delete('/api/vehicles/999999')
+          .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.status).toBe(404);
+      });
+
+      it('should allow admin to delete vehicle', async () => {
+        const response = await request(app)
+          .delete(`/api/vehicles/${vehicleIdToDelete}`)
+          .set('Authorization', `Bearer ${adminToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+
+        // Verify it was actually deleted
+        const getResponse = await request(app)
+          .get('/api/vehicles')
+          .set('Authorization', `Bearer ${adminToken}`);
+
+        const deletedVehicle = getResponse.body.data.vehicles.find(
+          (v: any) => v.id === vehicleIdToDelete,
+        );
+        expect(deletedVehicle).toBeUndefined();
+      });
+    });
+  });
 });
