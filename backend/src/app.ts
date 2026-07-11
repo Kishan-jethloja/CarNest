@@ -1,15 +1,20 @@
 import express from 'express';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 
-// Routes will be added here
+// System Diagnostics Route
 app.get('/health', (req, res) => {
   res.status(200).json({
-    status: 'success',
-    message: 'Server is healthy',
+    systemState: 'OK',
+    details: 'API is operational',
+    timestamp: new Date().toISOString(),
   });
 });
 
