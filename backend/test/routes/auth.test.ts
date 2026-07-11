@@ -62,5 +62,16 @@ describe('Authentication Routes', () => {
         expect(response.body.message).toMatch(/password/i);
       });
     });
+
+    describe('Validation Errors for Invalid Data Formats', () => {
+      it('should return 400 status if email format is invalid', async () => {
+        const invalidEmailData = { ...validRegistrationData, email: 'plainaddress' };
+        const response = await request(app).post('/api/auth/register').send(invalidEmailData);
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toMatch(/invalid email/i);
+      });
+    });
   });
 });
