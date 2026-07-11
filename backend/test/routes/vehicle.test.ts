@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 describe('Vehicle Routes', () => {
   describe('POST /api/vehicles', () => {
     const validVehicleData = {
+      name: 'Toyota Corolla 2024',
       make: 'Toyota',
       model: 'Corolla',
       category: 'sedan',

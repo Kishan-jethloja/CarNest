@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import vehicleRoutes from './routes/vehicle.routes';
 
 // Load environment variables
 dotenv.config();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 // System Diagnostics Route
 app.get('/health', (req, res) => {
