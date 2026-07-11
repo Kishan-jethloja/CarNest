@@ -9,7 +9,23 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // 1. Validate incoming data
     const validData = UserModel.build(req.body);
 
-    // 2. Hash password
+    // 2. Check if user already exists (explicit pre-check)
+    const checkQuery = `SELECT email, username FROM users WHERE email = $1 OR username = $2 LIMIT 1`;
+    const checkResult = await pool.query(checkQuery, [validData.email, validData.username]);
+
+    if (checkResult.rows.length > 0) {
+      const existingUser = checkResult.rows[0];
+      const message =
+        existingUser.email === validData.email ? 'Email already exists' : 'Username already exists';
+
+      res.status(409).json({
+        success: false,
+        message,
+      });
+      return;
+    }
+
+    // 3. Hash password
     const hashedPassword = await UserModel.hashPassword(validData.password);
 
     // 3. Insert into database
