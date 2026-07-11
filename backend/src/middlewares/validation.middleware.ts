@@ -3,34 +3,30 @@ import { z } from 'zod';
 import { VehicleModel } from '../models/vehicle.model';
 import { formatZodError } from '../utils/validators';
 
-export const validateVehicle = (req: Request, res: Response, next: NextFunction): void => {
-  try {
-    VehicleModel.build(req.body);
-    next();
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        success: false,
-        message: formatZodError(error),
-      });
-      return;
+/**
+ * Higher-order utility function to generate Zod validation middlewares.
+ * Dramatically reduces boilerplate and repetitive try/catch logic.
+ */
+const createValidator = (schemaBuilder: (data: any) => any, defaultMessage: string) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      schemaBuilder(req.body);
+      next();
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          success: false,
+          message: formatZodError(error),
+        });
+        return;
+      }
+      res.status(400).json({ success: false, message: defaultMessage });
     }
-    res.status(400).json({ success: false, message: 'Invalid vehicle data' });
-  }
+  };
 };
 
-export const validateVehicleUpdate = (req: Request, res: Response, next: NextFunction): void => {
-  try {
-    VehicleModel.buildPartial(req.body);
-    next();
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      res.status(400).json({
-        success: false,
-        message: formatZodError(error),
-      });
-      return;
-    }
-    res.status(400).json({ success: false, message: 'Invalid vehicle update data' });
-  }
-};
+export const validateVehicle = createValidator(VehicleModel.build, 'Invalid vehicle data');
+export const validateVehicleUpdate = createValidator(
+  VehicleModel.buildPartial,
+  'Invalid vehicle update data',
+);
