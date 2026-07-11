@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/user.model';
 import { pool } from '../config/db';
 import { formatZodError } from '../utils/validators';
+import { generateToken } from '../utils/tokengenerator';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -102,10 +102,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const secret = process.env.JWT_SECRET || 'fallback_secret';
-    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
-
-    const token = jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn });
+    const token = generateToken({ id: user.id, role: user.role });
 
     res.status(200).json({
       success: true,
