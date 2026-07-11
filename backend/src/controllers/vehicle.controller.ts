@@ -31,3 +31,23 @@ export const createVehicle = async (req: Request, res: Response): Promise<void> 
     });
   }
 };
+
+export const getVehicles = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const fetchQuery = `SELECT * FROM vehicles ORDER BY created_at DESC`;
+    const result = await pool.query(fetchQuery);
+
+    res.status(200).json({
+      success: true,
+      message: 'Vehicles retrieved successfully',
+      data: {
+        vehicles: result.rows,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to retrieve vehicles',
+    });
+  }
+};
