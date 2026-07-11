@@ -18,15 +18,17 @@ describe('Authentication Routes', () => {
       expect(response.body).toEqual({
         success: true,
         message: expect.any(String),
-        data: expect.objectContaining({
-          username: validRegistrationData.username,
-          email: validRegistrationData.email,
-          role: 'customer',
-        }),
+        data: {
+          user: expect.objectContaining({
+            username: validRegistrationData.username,
+            email: validRegistrationData.email,
+            role: 'customer',
+          }),
+        },
       });
 
       // Crucially, we expect the password to NOT be returned
-      expect(response.body.data).not.toHaveProperty('password');
+      expect(response.body.data.user).not.toHaveProperty('password');
     });
   });
 });
