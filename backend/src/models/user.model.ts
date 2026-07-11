@@ -22,14 +22,7 @@ const UserSchema = z.object({
 export type UserType = z.infer<typeof UserSchema>;
 
 export class UserModel {
-  /**
-   * Database indexes for the users table (Raw SQL)
-   */
-  static readonly INDEXES = [
-    'CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users(email);',
-    'CREATE UNIQUE INDEX IF NOT EXISTS users_username_idx ON users(username);',
-  ];
-
+  // Database indexes are managed by the schema.sql file now for cleaner code.
   /**
    * Validates and builds a user object with defaults
    */
