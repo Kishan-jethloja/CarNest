@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { UserModel } from '../models/user.model';
 import { pool } from '../config/db';
+import { formatZodError } from '../utils/validators';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -32,22 +33,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      let errorMessage = 'Validation failed';
-      if (error.issues && error.issues.length > 0) {
-        const issue = error.issues[0];
-        // Handle Zod's default undefined error for missing required fields
-        if (issue.code === 'invalid_type' && issue.received === undefined) {
-          // Capitalize the first letter of the field path
-          const field = String(issue.path[0]);
-          errorMessage = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
-        } else {
-          errorMessage = issue.message;
-        }
-      }
-
       res.status(400).json({
         success: false,
-        message: errorMessage,
+        message: formatZodError(error),
       });
       return;
     }
