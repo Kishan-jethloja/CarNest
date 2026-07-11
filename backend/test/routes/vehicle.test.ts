@@ -211,4 +211,93 @@ describe('Vehicle Routes', () => {
       });
     });
   });
+
+  describe('PUT /api/vehicles/:id', () => {
+    let vehicleId: number;
+
+    beforeAll(async () => {
+      // Insert a dedicated vehicle specifically for update testing
+      const v = {
+        name: 'Update Test Car',
+        make: 'TestMake',
+        model: 'TestModel',
+        category: 'sedan',
+        price: 10000,
+        quantity: 1,
+      };
+      const response = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${validToken}`)
+        .send(v);
+      vehicleId = response.body.data.vehicle.id;
+    });
+
+    describe('Authentication', () => {
+      it('should return 401 status if token is missing', async () => {
+        const response = await request(app)
+          .put(`/api/vehicles/${vehicleId}`)
+          .send({ price: 12000 });
+        expect(response.status).toBe(401);
+      });
+    });
+
+    describe('Validation & Errors', () => {
+      it('should return 404 for a non-existent vehicle', async () => {
+        const response = await request(app)
+          .put('/api/vehicles/999999')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ price: 12000 });
+        expect(response.status).toBe(404);
+        expect(response.body.message).toMatch(/not found/i);
+      });
+
+      it('should validate and reject invalid data', async () => {
+        const response = await request(app)
+          .put(`/api/vehicles/${vehicleId}`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ price: -500 }); // Price must be positive
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+      });
+    });
+
+    describe('Updates', () => {
+      it('should completely update all fields with valid data', async () => {
+        const fullUpdateData = {
+          name: 'Updated Car Name',
+          make: 'UpdatedMake',
+          model: 'UpdatedModel',
+          category: 'suv',
+          price: 25000,
+          quantity: 5,
+          description: 'Updated description',
+        };
+
+        const response = await request(app)
+          .put(`/api/vehicles/${vehicleId}`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send(fullUpdateData);
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.vehicle.name).toBe(fullUpdateData.name);
+        expect(response.body.data.vehicle.make).toBe(fullUpdateData.make);
+        expect(response.body.data.vehicle.price).toBe(fullUpdateData.price);
+      });
+
+      it('should support partial field updates', async () => {
+        const partialData = { price: 29999 }; // Only updating the price
+        const response = await request(app)
+          .put(`/api/vehicles/${vehicleId}`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send(partialData);
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.vehicle.price).toBe(partialData.price);
+        // Ensure other fields remained intact from the previous full update
+        expect(response.body.data.vehicle.name).toBe('Updated Car Name');
+      });
+    });
+  });
 });
