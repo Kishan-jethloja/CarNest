@@ -15,9 +15,10 @@ describe('Vehicle Routes', () => {
 
   // Generate a mock valid token for a customer user
   const validToken = generateToken({ id: 1, role: 'customer' });
+  const globalAdminToken = generateToken({ id: 99, role: 'admin' });
 
   describe('GET /api/vehicles (Empty State)', () => {
-    describe('Authentication', () => {
+    describe('Authentication & Authorization', () => {
       it('should return 401 status if token is missing', async () => {
         const response = await request(app).get('/api/vehicles');
         expect(response.status).toBe(401);
@@ -40,7 +41,7 @@ describe('Vehicle Routes', () => {
   });
 
   describe('POST /api/vehicles', () => {
-    describe('Authentication', () => {
+    describe('Authentication & Authorization', () => {
       it('should return 401 status if token is missing', async () => {
         // Sending request without 'Authorization' header
         const response = await request(app).post('/api/vehicles').send(validVehicleData);
@@ -60,13 +61,21 @@ describe('Vehicle Routes', () => {
         expect(response.body.success).toBe(false);
         expect(response.body.message).toMatch(/token/i);
       });
+
+      it('should return 403 status for non-admin users', async () => {
+        const response = await request(app)
+          .post('/api/vehicles')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send(validVehicleData);
+        expect(response.status).toBe(403);
+      });
     });
 
     describe('Successful Creation', () => {
       it('should create a new vehicle and return 201 status with valid token', async () => {
         const response = await request(app)
           .post('/api/vehicles')
-          .set('Authorization', `Bearer ${validToken}`)
+          .set('Authorization', `Bearer ${globalAdminToken}`)
           .send(validVehicleData);
 
         expect(response.status).toBe(201);
@@ -129,12 +138,12 @@ describe('Vehicle Routes', () => {
       for (const v of extraVehicles) {
         await request(app)
           .post('/api/vehicles')
-          .set('Authorization', `Bearer ${validToken}`)
+          .set('Authorization', `Bearer ${globalAdminToken}`)
           .send(v);
       }
     });
 
-    describe('Authentication', () => {
+    describe('Authentication & Authorization', () => {
       it('should return 401 status if token is missing', async () => {
         const response = await request(app).get('/api/vehicles/search?make=Toyota');
         expect(response.status).toBe(401);
@@ -227,17 +236,25 @@ describe('Vehicle Routes', () => {
       };
       const response = await request(app)
         .post('/api/vehicles')
-        .set('Authorization', `Bearer ${validToken}`)
+        .set('Authorization', `Bearer ${globalAdminToken}`)
         .send(v);
       vehicleId = response.body.data.vehicle.id;
     });
 
-    describe('Authentication', () => {
+    describe('Authentication & Authorization', () => {
       it('should return 401 status if token is missing', async () => {
         const response = await request(app)
           .put(`/api/vehicles/${vehicleId}`)
           .send({ price: 12000 });
         expect(response.status).toBe(401);
+      });
+
+      it('should return 403 status for non-admin users', async () => {
+        const response = await request(app)
+          .put(`/api/vehicles/${vehicleId}`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ price: 12000 });
+        expect(response.status).toBe(403);
       });
     });
 
@@ -245,7 +262,7 @@ describe('Vehicle Routes', () => {
       it('should return 404 for a non-existent vehicle', async () => {
         const response = await request(app)
           .put('/api/vehicles/999999')
-          .set('Authorization', `Bearer ${validToken}`)
+          .set('Authorization', `Bearer ${globalAdminToken}`)
           .send({ price: 12000 });
         expect(response.status).toBe(404);
         expect(response.body.message).toMatch(/not found/i);
@@ -254,7 +271,7 @@ describe('Vehicle Routes', () => {
       it('should validate and reject invalid data', async () => {
         const response = await request(app)
           .put(`/api/vehicles/${vehicleId}`)
-          .set('Authorization', `Bearer ${validToken}`)
+          .set('Authorization', `Bearer ${globalAdminToken}`)
           .send({ price: -500 }); // Price must be positive
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
@@ -275,7 +292,7 @@ describe('Vehicle Routes', () => {
 
         const response = await request(app)
           .put(`/api/vehicles/${vehicleId}`)
-          .set('Authorization', `Bearer ${validToken}`)
+          .set('Authorization', `Bearer ${globalAdminToken}`)
           .send(fullUpdateData);
 
         expect(response.status).toBe(200);
@@ -289,7 +306,7 @@ describe('Vehicle Routes', () => {
         const partialData = { price: 29999 }; // Only updating the price
         const response = await request(app)
           .put(`/api/vehicles/${vehicleId}`)
-          .set('Authorization', `Bearer ${validToken}`)
+          .set('Authorization', `Bearer ${globalAdminToken}`)
           .send(partialData);
 
         expect(response.status).toBe(200);
@@ -317,7 +334,7 @@ describe('Vehicle Routes', () => {
       };
       const response = await request(app)
         .post('/api/vehicles')
-        .set('Authorization', `Bearer ${validToken}`)
+        .set('Authorization', `Bearer ${globalAdminToken}`)
         .send(v);
       vehicleIdToDelete = response.body.data.vehicle.id;
     });
@@ -381,7 +398,7 @@ describe('Vehicle Routes', () => {
       };
       const res1 = await request(app)
         .post('/api/vehicles')
-        .set('Authorization', `Bearer ${validToken}`)
+        .set('Authorization', `Bearer ${globalAdminToken}`)
         .send(v1);
       vehicleIdToPurchase = res1.body.data.vehicle.id;
 
@@ -396,12 +413,12 @@ describe('Vehicle Routes', () => {
       };
       const res2 = await request(app)
         .post('/api/vehicles')
-        .set('Authorization', `Bearer ${validToken}`)
+        .set('Authorization', `Bearer ${globalAdminToken}`)
         .send(v2);
       outOfStockVehicleId = res2.body.data.vehicle.id;
     });
 
-    describe('Authentication', () => {
+    describe('Authentication & Authorization', () => {
       it('should return 401 status if token is missing', async () => {
         const response = await request(app).post(`/api/vehicles/${vehicleIdToPurchase}/purchase`);
         expect(response.status).toBe(401);

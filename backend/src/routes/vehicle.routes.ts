@@ -20,10 +20,10 @@ router.get('/', authenticateCustomer, getVehicles);
 router.get('/search', authenticateCustomer, searchVehicles);
 
 // POST /api/vehicles
-router.post('/', authenticateCustomer, validateVehicle, createVehicle);
+router.post('/', authenticateAdmin, validateVehicle, createVehicle);
 
 // PUT /api/vehicles/:id
-router.put('/:id', authenticateCustomer, validateVehicleUpdate, updateVehicle);
+router.put('/:id', authenticateAdmin, validateVehicleUpdate, updateVehicle);
 
 // DELETE /api/vehicles/:id
 router.delete('/:id', authenticateAdmin, deleteVehicle);
