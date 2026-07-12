@@ -6,6 +6,7 @@ import {
   updateVehicle,
   deleteVehicle,
   purchaseVehicle,
+  restockVehicle,
 } from '../controllers/vehicle.controller';
 import { authenticateCustomer, authenticateAdmin } from '../middlewares/auth.middleware';
 import { validateVehicle, validateVehicleUpdate } from '../middlewares/validation.middleware';
@@ -29,5 +30,8 @@ router.delete('/:id', authenticateAdmin, deleteVehicle);
 
 // POST /api/vehicles/:id/purchase
 router.post('/:id/purchase', authenticateCustomer, purchaseVehicle);
+
+// POST /api/vehicles/:id/restock
+router.post('/:id/restock', authenticateAdmin, restockVehicle);
 
 export default router;
