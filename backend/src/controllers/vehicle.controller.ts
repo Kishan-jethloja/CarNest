@@ -149,3 +149,53 @@ export const deleteVehicle = async (req: Request, res: Response): Promise<void> 
     });
   }
 };
+
+export const purchaseVehicle = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const purchaseQuantity = req.body.quantity ? parseInt(req.body.quantity, 10) : 1;
+
+    if (isNaN(purchaseQuantity) || purchaseQuantity <= 0) {
+      res.status(400).json({ success: false, message: 'Invalid purchase quantity' });
+      return;
+    }
+
+    const checkResult = await pool.query(`SELECT quantity FROM vehicles WHERE id = $1`, [id]);
+    if (checkResult.rows.length === 0) {
+      res.status(404).json({ success: false, message: 'Vehicle not found' });
+      return;
+    }
+
+    const currentQuantity = checkResult.rows[0].quantity;
+    if (currentQuantity === 0) {
+      res.status(400).json({ success: false, message: 'Vehicle is out of stock' });
+      return;
+    }
+
+    if (currentQuantity < purchaseQuantity) {
+      res.status(400).json({ success: false, message: 'Insufficient stock available' });
+      return;
+    }
+
+    const updateQuery = `
+      UPDATE vehicles 
+      SET quantity = quantity - $1 
+      WHERE id = $2 
+      RETURNING *;
+    `;
+    const result = await pool.query(updateQuery, [purchaseQuantity, id]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Vehicle purchased successfully',
+      data: {
+        vehicle: result.rows[0],
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to purchase vehicle',
+    });
+  }
+};

@@ -5,6 +5,7 @@ import {
   searchVehicles,
   updateVehicle,
   deleteVehicle,
+  purchaseVehicle,
 } from '../controllers/vehicle.controller';
 import { authenticateCustomer, authenticateAdmin } from '../middlewares/auth.middleware';
 import { validateVehicle, validateVehicleUpdate } from '../middlewares/validation.middleware';
@@ -25,5 +26,8 @@ router.put('/:id', authenticateCustomer, validateVehicleUpdate, updateVehicle);
 
 // DELETE /api/vehicles/:id
 router.delete('/:id', authenticateAdmin, deleteVehicle);
+
+// POST /api/vehicles/:id/purchase
+router.post('/:id/purchase', authenticateCustomer, purchaseVehicle);
 
 export default router;
