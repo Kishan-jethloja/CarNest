@@ -454,4 +454,78 @@ describe('Vehicle Routes', () => {
       });
     });
   });
+
+  describe('POST /api/vehicles/:id/restock', () => {
+    let vehicleIdToRestock: number;
+    const adminToken = generateToken({ id: 2, role: 'admin' });
+
+    beforeAll(async () => {
+      const v = {
+        name: 'Restock Test Car',
+        make: 'RestockMake',
+        model: 'RestockModel',
+        category: 'suv',
+        price: 35000,
+        quantity: 5,
+      };
+      const res = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(v);
+      vehicleIdToRestock = res.body.data.vehicle.id;
+    });
+
+    describe('Authentication & Authorization', () => {
+      it('should return 401 status if token is missing', async () => {
+        const response = await request(app).post(`/api/vehicles/${vehicleIdToRestock}/restock`);
+        expect(response.status).toBe(401);
+      });
+
+      it('should return 403 status for non-admin users', async () => {
+        const response = await request(app)
+          .post(`/api/vehicles/${vehicleIdToRestock}/restock`)
+          .set('Authorization', `Bearer ${validToken}`) // validToken is 'customer'
+          .send({ quantity: 10 });
+        expect(response.status).toBe(403);
+      });
+    });
+
+    describe('Restock Validation & Logic', () => {
+      it('should return 404 for a non-existent vehicle', async () => {
+        const response = await request(app)
+          .post('/api/vehicles/999999/restock')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ quantity: 10 });
+        expect(response.status).toBe(404);
+      });
+
+      it('should validate restock quantity (reject invalid data)', async () => {
+        const response = await request(app)
+          .post(`/api/vehicles/${vehicleIdToRestock}/restock`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ quantity: -5 }); // Invalid quantity
+        expect(response.status).toBe(400);
+      });
+
+      it('should allow admin to restock vehicle and increase quantity', async () => {
+        const response = await request(app)
+          .post(`/api/vehicles/${vehicleIdToRestock}/restock`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ quantity: 10 });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+
+        // Verify quantity was increased (5 + 10 = 15)
+        const getResponse = await request(app)
+          .get('/api/vehicles')
+          .set('Authorization', `Bearer ${adminToken}`);
+
+        const updatedVehicle = getResponse.body.data.vehicles.find(
+          (v: any) => v.id === vehicleIdToRestock,
+        );
+        expect(updatedVehicle.quantity).toBe(15);
+      });
+    });
+  });
 });
