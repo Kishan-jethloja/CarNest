@@ -7,14 +7,23 @@ export const createVehicle = async (req: Request, res: Response): Promise<void> 
   try {
     // Validation is now safely handled upstream by validateVehicle middleware.
     // We can confidently extract the payload directly.
-    const { name, make, model, category, price, quantity, description } = req.body;
+    const { name, make, model, category, price, quantity, description, image_url } = req.body;
 
     const insertQuery = `
-      INSERT INTO vehicles (name, make, model, category, price, quantity, description)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO vehicles (name, make, model, category, price, quantity, description, image_url)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
-    const values = [name, make, model, category, price, quantity, description || null];
+    const values = [
+      name,
+      make,
+      model,
+      category,
+      price,
+      quantity,
+      description || null,
+      image_url || null,
+    ];
 
     const result = await pool.query(insertQuery, values);
     const createdVehicle = result.rows[0];
@@ -50,6 +59,32 @@ export const getVehicles = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to retrieve vehicles',
+    });
+  }
+};
+
+export const getVehicleById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const fetchQuery = `SELECT * FROM vehicles WHERE id = $1 LIMIT 1`;
+    const result = await pool.query(fetchQuery, [id]);
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ success: false, message: 'Vehicle not found' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Vehicle retrieved successfully',
+      data: {
+        vehicle: result.rows[0],
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to retrieve vehicle',
     });
   }
 };

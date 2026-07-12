@@ -41,10 +41,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const createdUser = result.rows[0];
 
     // 5. Return sanitized response
+    const token = generateToken({ id: createdUser.id, role: createdUser.role });
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: {
+        token,
         user: UserModel.toJSON(createdUser),
       },
     });

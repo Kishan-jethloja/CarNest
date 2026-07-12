@@ -25,6 +25,7 @@ const VehicleSchema = z.object({
     .int('Quantity must be an integer')
     .nonnegative('Quantity cannot be negative'),
   description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
+  image_url: z.string().url('Must be a valid URL').or(z.literal('')).optional().nullable(),
   createdAt: z.date().default(() => new Date()),
   updatedAt: z.date().default(() => new Date()),
 });

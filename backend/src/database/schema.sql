@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   price DECIMAL(10, 2) NOT NULL CHECK (price > 0),
   quantity INTEGER NOT NULL DEFAULT 0 CHECK (quantity >= 0),
   description TEXT,
+  image_url TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

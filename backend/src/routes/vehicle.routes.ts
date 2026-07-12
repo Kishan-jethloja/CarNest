@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createVehicle,
   getVehicles,
+  getVehicleById,
   searchVehicles,
   updateVehicle,
   deleteVehicle,
@@ -18,6 +19,9 @@ router.get('/', authenticateCustomer, getVehicles);
 
 // GET /api/vehicles/search
 router.get('/search', authenticateCustomer, searchVehicles);
+
+// GET /api/vehicles/:id
+router.get('/:id', authenticateCustomer, getVehicleById);
 
 // POST /api/vehicles
 router.post('/', authenticateAdmin, validateVehicle, createVehicle);

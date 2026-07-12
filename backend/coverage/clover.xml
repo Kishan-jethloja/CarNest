@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1783869304308" clover="3.2.0">
+  <project timestamp="1783869304308" name="All files">
+    <metrics statements="35" coveredstatements="35" conditionals="0" coveredconditionals="0" methods="11" coveredmethods="11" elements="46" coveredelements="46" complexity="0" loc="35" ncloc="35" packages="2" files="3" classes="3"/>
+    <package name="src">
+      <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="app.ts" path="C:\Users\lenovo\OneDrive\Desktop\incubyte\CarNest\backend\src\app.ts">
+        <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.models">
+      <metrics statements="21" coveredstatements="21" conditionals="0" coveredconditionals="0" methods="10" coveredmethods="10"/>
+      <file name="user.model.ts" path="C:\Users\lenovo\OneDrive\Desktop\incubyte\CarNest\backend\src\models\user.model.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="6"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="18" count="6" type="stmt"/>
+        <line num="19" count="6" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="31" count="6" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="46" count="3" type="stmt"/>
+        <line num="47" count="3" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+      </file>
+      <file name="vehicle.model.ts" path="C:\Users\lenovo\OneDrive\Desktop\incubyte\CarNest\backend\src\models\vehicle.model.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="29" count="17" type="stmt"/>
+        <line num="30" count="17" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="55" count="16" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

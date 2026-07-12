@@ -84,4 +84,13 @@ describe('Vehicle Model Validation', () => {
       expect(vehicle.quantity).toBe(0);
     });
   });
+
+  describe('Partial Updates', () => {
+    it('should validate partial vehicle updates', () => {
+      const partialData = { price: 26000 };
+      const updated = VehicleModel.buildPartial(partialData);
+      expect(updated.price).toBe(26000);
+      expect(updated.make).toBeUndefined();
+    });
+  });
 });

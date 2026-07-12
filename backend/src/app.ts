@@ -1,5 +1,6 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
+import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import vehicleRoutes from './routes/vehicle.routes';
 
@@ -9,6 +10,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 // API Routes
