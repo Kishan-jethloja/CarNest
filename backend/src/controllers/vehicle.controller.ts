@@ -125,3 +125,27 @@ export const updateVehicle = async (req: Request, res: Response): Promise<void> 
     });
   }
 };
+
+export const deleteVehicle = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const deleteQuery = `DELETE FROM vehicles WHERE id = $1 RETURNING *;`;
+    const result = await pool.query(deleteQuery, [id]);
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ success: false, message: 'Vehicle not found' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Vehicle deleted successfully',
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to delete vehicle',
+    });
+  }
+};
