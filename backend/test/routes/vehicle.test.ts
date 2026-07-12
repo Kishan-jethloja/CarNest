@@ -364,4 +364,94 @@ describe('Vehicle Routes', () => {
       });
     });
   });
+
+  describe('POST /api/vehicles/:id/purchase', () => {
+    let vehicleIdToPurchase: number;
+    let outOfStockVehicleId: number;
+
+    beforeAll(async () => {
+      // Vehicle with some stock
+      const v1 = {
+        name: 'Purchase Test Car',
+        make: 'PurchaseMake',
+        model: 'PurchaseModel',
+        category: 'sedan',
+        price: 20000,
+        quantity: 5,
+      };
+      const res1 = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${validToken}`)
+        .send(v1);
+      vehicleIdToPurchase = res1.body.data.vehicle.id;
+
+      // Vehicle with zero stock
+      const v2 = {
+        name: 'Out of Stock Car',
+        make: 'OOSMake',
+        model: 'OOSModel',
+        category: 'suv',
+        price: 30000,
+        quantity: 0,
+      };
+      const res2 = await request(app)
+        .post('/api/vehicles')
+        .set('Authorization', `Bearer ${validToken}`)
+        .send(v2);
+      outOfStockVehicleId = res2.body.data.vehicle.id;
+    });
+
+    describe('Authentication', () => {
+      it('should return 401 status if token is missing', async () => {
+        const response = await request(app).post(`/api/vehicles/${vehicleIdToPurchase}/purchase`);
+        expect(response.status).toBe(401);
+      });
+    });
+
+    describe('Purchase Validation & Logic', () => {
+      it('should return 404 for a non-existent vehicle', async () => {
+        const response = await request(app)
+          .post('/api/vehicles/999999/purchase')
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ quantity: 1 });
+        expect(response.status).toBe(404);
+      });
+
+      it('should prevent purchase when out of stock', async () => {
+        const response = await request(app)
+          .post(`/api/vehicles/${outOfStockVehicleId}/purchase`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ quantity: 1 });
+        expect(response.status).toBe(400);
+      });
+
+      it('should validate purchase quantity against available stock', async () => {
+        const response = await request(app)
+          .post(`/api/vehicles/${vehicleIdToPurchase}/purchase`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ quantity: 10 }); // Stock is 5
+        expect(response.status).toBe(400);
+      });
+
+      it('should allow customer to purchase vehicle and decrease quantity', async () => {
+        const response = await request(app)
+          .post(`/api/vehicles/${vehicleIdToPurchase}/purchase`)
+          .set('Authorization', `Bearer ${validToken}`)
+          .send({ quantity: 2 });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+
+        // Verify quantity was decreased
+        const getResponse = await request(app)
+          .get('/api/vehicles')
+          .set('Authorization', `Bearer ${validToken}`);
+
+        const updatedVehicle = getResponse.body.data.vehicles.find(
+          (v: any) => v.id === vehicleIdToPurchase,
+        );
+        expect(updatedVehicle.quantity).toBe(3); // 5 - 2
+      });
+    });
+  });
 });
