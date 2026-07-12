@@ -26,3 +26,20 @@ export const formatZodError = (error: z.ZodError): string => {
 
   return issue.message;
 };
+
+/**
+ * Validates stock availability for a vehicle purchase.
+ *
+ * @param currentQuantity The current available stock
+ * @param purchaseQuantity The requested amount to purchase
+ * @returns An error message string if invalid, or null if valid
+ */
+export const validateStock = (currentQuantity: number, purchaseQuantity: number): string | null => {
+  if (currentQuantity === 0) {
+    return 'Vehicle is out of stock';
+  }
+  if (currentQuantity < purchaseQuantity) {
+    return 'Insufficient stock available';
+  }
+  return null;
+};

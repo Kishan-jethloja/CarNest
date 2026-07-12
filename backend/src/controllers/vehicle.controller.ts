@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { pool } from '../config/db';
+import { validateStock } from '../utils/validators';
 import { buildVehicleSearchQuery } from '../utils/queryBuilder';
 
 export const createVehicle = async (req: Request, res: Response): Promise<void> => {
@@ -167,13 +168,10 @@ export const purchaseVehicle = async (req: Request, res: Response): Promise<void
     }
 
     const currentQuantity = checkResult.rows[0].quantity;
-    if (currentQuantity === 0) {
-      res.status(400).json({ success: false, message: 'Vehicle is out of stock' });
-      return;
-    }
 
-    if (currentQuantity < purchaseQuantity) {
-      res.status(400).json({ success: false, message: 'Insufficient stock available' });
+    const stockError = validateStock(currentQuantity, purchaseQuantity);
+    if (stockError) {
+      res.status(400).json({ success: false, message: stockError });
       return;
     }
 
